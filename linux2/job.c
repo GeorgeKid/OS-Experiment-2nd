@@ -1,3 +1,7 @@
+#ifndef DEBUG
+#define DEBUG
+#endif
+
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -198,6 +202,51 @@ void Que_print_all()
 	Que_print(head_3rd);
 }
 
+void Current_print() {
+
+	char timebuf[BUFLEN];
+
+	if (current == NULL || current->job == NULL)
+		return ;
+
+	/*
+	printf("current jid :　%d\n", current->job->jid);
+	printf("current pid :　%d\n", current->job->pid);
+	printf("current cmdarg 1 :　%s\n", current->job->cmdarg[0]);
+	printf("current cmdarg 2 :　%s\n", current->job->cmdarg[1]);
+	printf("current defpri :　%d\n", current->job->defpri);
+	printf("current curpri :　%d\n", current->job->curpri);
+	printf("current ownerid :　%d\n", current->job->ownerid);
+	printf("current wait_time :　%d\n", current->job->wait_time);
+
+	printf("current create_time :　%ld\n", current->job->create_time);
+	
+
+	printf("current run_time :　%d\n", current->job->run_time);
+
+	switch (current->job->state) {
+		case READY : printf("current state : READY\n");break;
+		case RUNNING: printf("current state : RUNNING\n"); break;
+		case DONE : printf("current state : DONE\n"); break;
+	}
+	*/
+	
+	printf("JOBID\tPID\tOWNER\tRUNTIME\tWAITTIME\tCREATTIME\t\tSTATE\n");
+	if(current){
+		strcpy(timebuf,ctime(&(current->job->create_time)));
+		timebuf[strlen(timebuf)-1]='\0';
+		printf("%d\t%d\t%d\t%d\t%d\t%s\t%s\n",
+			current->job->jid,
+			current->job->pid,
+			current->job->ownerid,
+			current->job->run_time,
+			current->job->wait_time,
+			timebuf,"RUNNING");
+	}
+
+
+}
+
 /* 调度程序 */
 void scheduler()
 {
@@ -235,8 +284,14 @@ void scheduler()
 
 	/* 选择高优先级作业 */
 	next=jobselect();
+	
 	/* 作业切换 */
 	jobswitch();
+
+
+
+
+
 }
 
 int allocjid()
@@ -320,15 +375,41 @@ struct waitqueue* jobselect()
 		}
 	}
 
-	if (head != NULL)
+	if (head != NULL) {
+
+//leafli task8-1
+#ifdef DEBUG
+		printf("#---------------------task 8---------------------#\n");
+		Que_print(*head);
+		printf("#---------------------task 8---------------------#\n");
+#endif
+
 		return Que_deq(head);
-	else
+	}
+	else {
+//leafli task8-2
+#ifdef DEBUG
+		printf("#---------------------task 8---------------------#\n");
+		printf("Current Process is null!\n");
+		printf("#---------------------task 8---------------------#\n");
+#endif
 		return NULL;
+	}
 }
+
 void jobswitch()
 {
 	struct waitqueue *p;
 	int i;
+
+//leafli task9-1
+#ifdef DEBUG
+	printf("#------------task 9--before switch--------------#\n");
+	Current_print();
+	Que_print_all();
+	printf("#------------task 9--before switch--------------#\n");
+#endif
+
 
 	if (current && current->job->state == DONE){ /* 当前作业完成 */
 		/* 作业完成，删除它 */
@@ -345,7 +426,8 @@ void jobswitch()
 	}
 	
 	if (next == NULL && current == NULL) /* 没有作业要运行 */
-		return;
+		//return;
+		;
 	else if (next != NULL && current == NULL){ /* 开始新的作业 */
 
 		printf("begin start new job\n");
@@ -353,7 +435,7 @@ void jobswitch()
 		next = NULL;
 		current->job->state = RUNNING;
 		kill(current->job->pid, SIGCONT);
-		return;
+		//return;
 	}
 	else if (next != NULL && current != NULL){ /* 切换作业 */
 
@@ -371,11 +453,20 @@ void jobswitch()
 		current->job->state = RUNNING;
 		current->job->wait_time = 0;
 		kill(current->job->pid, SIGCONT);
-		return;
+		//return;
 	}
 	else{ /* next == NULL且current != NULL，不切换 */
-		return;
+		//return;
 	}
+
+//leafli task9-2
+#ifdef DEBUG
+	printf("#------------task 9--after switch--------------#\n");
+	Current_print();
+	Que_print_all();
+	printf("#------------task 9--after switch--------------#\n");
+#endif
+
 }
 
 
@@ -411,6 +502,15 @@ case SIGCHLD: /* 子进程结束时传送给父进程的信号 */
 	}else if (WIFSTOPPED(status)){
 		printf("child stopped, signal number = %d\n",WSTOPSIG(status));
 	}
+
+//leafli task10
+#ifdef DEBUG
+	printf("#--------------task 10--------------#\n");
+	Current_print();
+	Que_print_all();
+	printf("#--------------task 10--------------#\n");
+#endif
+
 	return;
 	default:
 		return;
