@@ -188,6 +188,15 @@ void Que_print(struct waitqueue *head)
 			"READY");
 	}
 }
+void Que_print_all()
+{
+	printf("First Queue:\n");
+	Que_print(head_1st);
+	printf("Second Queue:\n");
+	Que_print(head_2nd);
+	printf("Third Queue:\n");
+	Que_print(head_3rd);
+}
 
 /* 调度程序 */
 void scheduler()
@@ -414,6 +423,9 @@ void do_deq(struct jobcmd deqcmd)
 	deqid = atoi(deqcmd.data);
 
 #ifdef DEBUG
+	printf("Task-7 : Before deq.\n");//任务7
+	Que_print_all();
+	
 	printf("deq jid %d\n", deqid);
 #endif
 
@@ -432,10 +444,20 @@ void do_deq(struct jobcmd deqcmd)
 	}
 	else /* 或者在等待队列中查找deqid */
 		Que_search_delete(deqid);	
+
+#ifdef DEBUG
+	printf("Task-7 : After deq.\n");//任务7
+	Que_print_all();
+#endif
 }
 
 void do_enq(struct jobinfo *newjob, struct jobcmd enqcmd)
 {
+#ifdef DEBUG
+	printf("Task-7 : Before enq.\n");//任务7
+	Que_print_all();
+#endif
+
 	struct waitqueue *newnode, *p;
 	int i = 0, pid;
 	char *offset, *argvec, *q;
@@ -496,6 +518,8 @@ void do_enq(struct jobinfo *newjob, struct jobcmd enqcmd)
 		/*阻塞子进程,等等执行*/
 		raise(SIGSTOP);
 #ifdef DEBUG
+		printf("Task-7 : After enq.\n");//任务7
+		Que_print_all();
 
 		printf("begin running\n");
 		for (i = 0; arglist[i] != NULL; i++)
