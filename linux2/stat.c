@@ -5,9 +5,9 @@
 #include <sys/ipc.h>
 #include <fcntl.h>
 #include "job.h"
-
+#define DEBUG
 /* 
- * �����﷨��ʽ
+ * ÃüÁîÓï·¨¸ñÊ½
  *     stat
  */
 void usage()
@@ -30,7 +30,14 @@ int main(int argc,char *argv[])
 	statcmd.defpri=0;
 	statcmd.owner=getuid();
 	statcmd.argnum=0;
+#ifdef DEBUG
+		printf("statcmd cmdtype\t%d\n"
+			"statcmd owner\t%d\n"
+			"statcmd defpri\t%d\n"
+			"statcmd data\t%s\n",
+			statcmd.type,statcmd.owner,statcmd.defpri,statcmd.data);
 
+ #endif 
 	if((fd=open("/tmp/server",O_WRONLY))<0)
 		error_sys("stat open fifo failed");
 
