@@ -5,9 +5,9 @@
 #include <sys/ipc.h>
 #include <fcntl.h>
 #include "job.h"
-
+#define DEBUG
 /* 
- * �����﷨��ʽ
+ * ÃüÁîÓï·¨¸ñÊ½
  *     deq jid
  */
 void usage()
@@ -34,7 +34,14 @@ int main(int argc,char *argv[])
 
 	strcpy(deqcmd.data,*++argv);
 	printf("jid %s\n",deqcmd.data);
+#ifdef DEBUG
+		printf("deqcmd cmdtype\t%d\n"
+			"deqcmd owner\t%d\n"
+			"deqcmd defpri\t%d\n"
+			"deqcmd data\t%s\n",
+			deqcmd.type,deqcmd.owner,deqcmd.defpri,deqcmd.data);
 
+ #endif 
 	if((fd=open("/tmp/server",O_WRONLY))<0)
 		error_sys("deq open fifo failed");
 
